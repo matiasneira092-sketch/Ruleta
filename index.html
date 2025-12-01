@@ -409,40 +409,51 @@
         updateItemsList();
     }
 
-    function spin(){
-        if(isSpinning || items.length === 0) return;
+    function spin() {
+    if (isSpinning || items.length === 0) return;
 
-        isSpinning = true;
-        const spinBtn = document.getElementById('spinBtn');
-        spinBtn.disabled = true;
+    isSpinning = true;
+    const spinBtn = document.getElementById('spinBtn');
+    spinBtn.disabled = true;
 
-        const spins = 6 + Math.random()*6;
-        const extra = Math.random()*360;
-        const degreesToRotate = spins*360 + extra;
+    // Vueltas + ángulo extra para que sea realmente aleatorio
+    const spins = 6 + Math.random()*6;
+    const extra = Math.random() * 360;
+    const degreesToRotate = spins * 360 + extra;
 
-        const totalRotation = currentRotation + degreesToRotate;
+    const totalRotation = currentRotation + degreesToRotate;
 
-        canvas.style.transform = `rotate(${totalRotation}deg)`;
+    // Aplicar giro visual
+    canvas.style.transform = `rotate(${totalRotation}deg)`;
 
-        const transitionDurationMs = 4000;
+    const transitionDurationMs = 4000;
 
-        setTimeout(()=>{
-            const normalized = ((totalRotation % 360) + 360) % 360;
+    setTimeout(() => {
+        // Normalizar ángulo final entre 0-360
+        const normalized = ((totalRotation % 360) + 360) % 360;
 
-            const sliceDeg = 360 / items.length;
+        const sliceDeg = 360 / items.length;
 
-            const ang = ( (270 - normalized) % 360 + 360 ) % 360;
-            const winnerIndex = Math.floor( ang / sliceDeg ) % items.length;
+        /**
+         * La flecha está arriba (posición 270°)
+         * Para saber qué segmento señala:
+         * ganador = (270° - ángulo_final_rota_ruleta)
+         */
+        let ang = 270 - normalized;
+        if (ang < 0) ang += 360;
 
-            const winner = items[winnerIndex];
+        const winnerIndex = Math.floor(ang / sliceDeg);
 
-            showWinner(winner);
+        const winner = items[winnerIndex];
 
-            currentRotation = totalRotation;
-            isSpinning = false;
-            spinBtn.disabled = false;
-        }, transitionDurationMs + 50);
-    }
+        showWinner(winner);
+
+        currentRotation = totalRotation;
+        isSpinning = false;
+        spinBtn.disabled = false;
+
+    }, transitionDurationMs + 50);
+}
 
     function showWinner(name){
         document.getElementById('winnerText').textContent = name;
@@ -459,4 +470,3 @@
     
 </body>
 </html>
-
