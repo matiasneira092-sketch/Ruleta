@@ -250,6 +250,163 @@
             background:#667eea;
             color:#fff;
         }
+        .config-btn{
+            position:fixed;
+            top:20px;
+            left:20px;
+            background:rgba(255,255,255,0.95);
+            padding:15px 25px;
+            border-radius:20px;
+            box-shadow:0 4px 15px rgba(0,0,0,.3);
+            border:none;
+            color:#667eea;
+            font-weight:600;
+            cursor:pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index:100;
+        }
+        .config-btn:hover{
+            transform: translateY(-2px);
+            box-shadow:0 6px 20px rgba(0,0,0,.4);
+            background:#667eea;
+            color:#fff;
+        }
+        .config-modal{
+            display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,.8);
+            justify-content:center;
+            align-items:center;
+            z-index:1000;
+            animation: fadeIn 0.3s;
+        }
+        .config-modal.show{display:flex}
+        .config-content{
+            background:#fff;
+            padding:40px;
+            border-radius:30px;
+            box-shadow:0 20px 60px rgba(0,0,0,.3);
+            max-width:600px;
+            width:90%;
+            max-height:80vh;
+            overflow-y:auto;
+            animation: slideUp 0.5s;
+        }
+        .config-content h2{
+            color:#667eea;
+            font-size:1.8em;
+            margin-bottom:25px;
+            text-align:center;
+        }
+        .config-section{
+            margin-bottom:30px;
+        }
+        .config-section h3{
+            color:#333;
+            font-size:1.3em;
+            margin-bottom:15px;
+        }
+        .color-options{
+            display:grid;
+            grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+            gap:15px;
+        }
+        .color-option{
+            padding:15px;
+            border-radius:15px;
+            cursor:pointer;
+            text-align:center;
+            font-weight:600;
+            color:#fff;
+            transition: all 0.3s;
+            border:3px solid transparent;
+        }
+        .color-option:hover{
+            transform: scale(1.05);
+            box-shadow:0 4px 12px rgba(0,0,0,.3);
+        }
+        .color-option.active{
+            border-color:#fff;
+            box-shadow:0 0 0 3px #667eea;
+        }
+        .saved-wheels{
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+        }
+        .saved-wheel-item{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:15px;
+            background:#f8f9fa;
+            border-radius:15px;
+            cursor:pointer;
+            transition: all 0.3s;
+        }
+        .saved-wheel-item:hover{
+            background:#e9ecef;
+            transform: translateX(5px);
+        }
+        .saved-wheel-name{
+            font-weight:600;
+            color:#333;
+        }
+        .saved-wheel-count{
+            color:#666;
+            font-size:0.9em;
+        }
+        .saved-wheel-actions{
+            display:flex;
+            gap:10px;
+        }
+        .load-btn, .delete-saved-btn{
+            padding:8px 15px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:600;
+            transition: all 0.3s;
+        }
+        .load-btn{
+            background:#667eea;
+            color:#fff;
+        }
+        .load-btn:hover{
+            background:#764ba2;
+        }
+        .delete-saved-btn{
+            background:#ff4757;
+            color:#fff;
+        }
+        .delete-saved-btn:hover{
+            background:#ff3838;
+        }
+        .save-current{
+            display:flex;
+            gap:10px;
+            margin-top:15px;
+        }
+        .save-current input{
+            flex:1;
+        }
+        .save-current button{
+            padding:12px 20px;
+            background:#667eea;
+            color:#fff;
+            border:none;
+            border-radius:25px;
+            cursor:pointer;
+            font-weight:600;
+        }
+        .save-current button:hover{
+            background:#764ba2;
+        }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -269,16 +426,19 @@
             .container{max-width:100%}
             .wheel-wrapper{width:280px;height:280px}
             h1{font-size:1.5em}
-            .social-link{
+            .social-link, .config-btn{
                 top:10px;
-                right:10px;
                 padding:10px 15px;
                 font-size:0.9em;
             }
+            .social-link{right:10px}
+            .config-btn{left:10px}
         }
     </style>
 </head>
 <body>
+    <button class="config-btn" onclick="openConfig()">⚙️ Configuración</button>
+    
     <a href="https://www.instagram.com/mati_finv/" target="_blank" class="social-link">
         📱 Redes del creador
     </a>
@@ -319,132 +479,295 @@
         </div>
     </div>
 
-    <script>
-    const colors = [
-        '#FF6B6B','#4ECDC4','#45B7D1','#FFA07A','#98D8C8','#F7DC6F',
-        '#BB8FCE','#85C1E2','#F8B739','#52B788','#E07A5F','#81B29A'
-    ];
-
-    let items = ['Ana','Carlos','María','Pedro','Lucía'];
-    let isSpinning = false;
-    let currentRotation = 0;
-
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-
-    function drawWheel(){
-        const centerX = canvas.width/2;
-        const centerY = canvas.height/2;
-        const radius = 180;
-
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-
-        if(items.length === 0){
-            ctx.font = '18px Arial';
-            ctx.fillStyle = '#999';
-            ctx.textAlign = 'center';
-            ctx.fillText('Agrega elementos para comenzar', centerX, centerY);
-            return;
-        }
-
-        const sliceAngle = (2*Math.PI)/items.length;
-
-        items.forEach((item,index)=>{
-            const startAngle = index * sliceAngle;
-            const endAngle = startAngle + sliceAngle;
-
-            ctx.beginPath();
-            ctx.moveTo(centerX,centerY);
-            ctx.arc(centerX,centerY,radius,startAngle,endAngle);
-            ctx.closePath();
-            ctx.fillStyle = colors[index % colors.length];
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            ctx.save();
-            ctx.translate(centerX,centerY);
-            ctx.rotate(startAngle + sliceAngle/2);
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Arial';
-            ctx.shadowColor = 'rgba(0,0,0,0.4)';
-            ctx.shadowBlur = 3;
-            ctx.fillText(item, radius * 0.65, 5);
-            ctx.restore();
-        });
-    }
-
-    function updateItemsList(){
-        const list = document.getElementById('itemsList');
-        list.innerHTML = '';
-        items.forEach((item,index)=>{
-            const div = document.createElement('div');
-            div.className = 'item';
-            div.innerHTML = `
-                <div style="display:flex;align-items:center">
-                    <div class="item-color" style="background:${colors[index % colors.length]}"></div>
-                    <div class="item-text">${item}</div>
+    <div class="config-modal" id="configModal">
+        <div class="config-content">
+            <h2>⚙️ Configuración</h2>
+            
+            <div class="config-section">
+                <h3>🎨 Color de Fondo</h3>
+                <div class="color-options">
+                    <div class="color-option active" onclick="changeBackground('gradient1')" id="bg-gradient1" style="background:linear-gradient(135deg, #FF0080 0%, #FF8C00 25%, #FFD700 50%, #00D4FF 75%, #8A2BE2 100%)">Arcoíris</div>
+                    <div class="color-option" onclick="changeBackground('gradient2')" id="bg-gradient2" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%)">Púrpura</div>
+                    <div class="color-option" onclick="changeBackground('gradient3')" id="bg-gradient3" style="background:linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">Rosa</div>
+                    <div class="color-option" onclick="changeBackground('gradient4')" id="bg-gradient4" style="background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">Azul</div>
+                    <div class="color-option" onclick="changeBackground('gradient5')" id="bg-gradient5" style="background:linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">Verde</div>
+                    <div class="color-option" onclick="changeBackground('gradient6')" id="bg-gradient6" style="background:linear-gradient(135deg, #fa709a 0%, #fee140 100%)">Sunset</div>
+                    <div class="color-option" onclick="changeBackground('gradient7')" id="bg-gradient7" style="background:linear-gradient(135deg, #30cfd0 0%, #330867 100%)">Océano</div>
+                    <div class="color-option" onclick="changeBackground('gradient8')" id="bg-gradient8" style="background:linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)">Naranja</div>
                 </div>
-                <button class="delete-btn" onclick="deleteItem(${index})">Eliminar</button>
-            `;
-            list.appendChild(div);
-        });
-    }
+            </div>
 
-    function addItem(){
-        const input = document.getElementById('itemInput');
-        const v = input.value.trim();
-        if(!v) return;
-        items.push(v);
-        input.value = '';
+            <div class="config-section">
+                <h3>💾 Guardar Ruleta Actual</h3>
+                <div class="save-current">
+                    <input type="text" id="wheelNameInput" placeholder="Nombre de la ruleta...">
+                    <button onclick="saveCurrentWheel()">Guardar</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>📚 Ruletas Guardadas</h3>
+                <div class="saved-wheels" id="savedWheelsList"></div>
+            </div>
+
+            <button class="close-btn" onclick="closeConfig()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+const colors = [
+    '#FF6B6B','#4ECDC4','#45B7D1','#FFA07A','#98D8C8','#F7DC6F',
+    '#BB8FCE','#85C1E2','#F8B739','#52B788','#E07A5F','#81B29A'
+];
+
+let items = ['Ana','Carlos','María','Pedro','Lucía'];
+let isSpinning = false;
+let currentRotation = 0;
+let lastWinner = null;
+let currentBackground = 'gradient1';
+let savedWheels = {};
+
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+
+// Cargar datos guardados
+function loadData() {
+    const saved = localStorage.getItem('matashiroWheels');
+    if (saved) {
+        savedWheels = JSON.parse(saved);
+    }
+    const savedBg = localStorage.getItem('matashiroBg');
+    if (savedBg) {
+        currentBackground = savedBg;
+        applyBackground(savedBg);
+    }
+}
+
+// Guardar datos
+function saveData() {
+    localStorage.setItem('matashiroWheels', JSON.stringify(savedWheels));
+    localStorage.setItem('matashiroBg', currentBackground);
+}
+
+// Cambiar fondo
+const backgrounds = {
+    gradient1: 'linear-gradient(135deg, #FF0080 0%, #FF8C00 25%, #FFD700 50%, #00D4FF 75%, #8A2BE2 100%)',
+    gradient2: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient3: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    gradient4: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient5: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    gradient6: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    gradient7: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+    gradient8: 'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)'
+};
+
+function applyBackground(bgKey) {
+    document.body.style.background = backgrounds[bgKey];
+    document.body.style.backgroundSize = '400% 400%';
+}
+
+function changeBackground(bgKey) {
+    currentBackground = bgKey;
+    applyBackground(bgKey);
+    saveData();
+    
+    // Actualizar UI
+    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+    document.getElementById('bg-' + bgKey).classList.add('active');
+}
+
+// Guardar ruleta actual
+function saveCurrentWheel() {
+    const nameInput = document.getElementById('wheelNameInput');
+    const name = nameInput.value.trim();
+    if (!name) {
+        alert('Por favor ingresa un nombre para la ruleta');
+        return;
+    }
+    if (items.length === 0) {
+        alert('La ruleta está vacía. Agrega elementos primero.');
+        return;
+    }
+    
+    savedWheels[name] = [...items];
+    saveData();
+    nameInput.value = '';
+    updateSavedWheelsList();
+    alert('¡Ruleta guardada exitosamente!');
+}
+
+// Cargar ruleta guardada
+function loadWheel(name) {
+    if (savedWheels[name]) {
+        items = [...savedWheels[name]];
         drawWheel();
         updateItemsList();
+        closeConfig();
+    }
+}
+
+// Eliminar ruleta guardada
+function deleteSavedWheel(name) {
+    if (confirm(`¿Estás seguro de eliminar la ruleta "${name}"?`)) {
+        delete savedWheels[name];
+        saveData();
+        updateSavedWheelsList();
+    }
+}
+
+// Actualizar lista de ruletas guardadas
+function updateSavedWheelsList() {
+    const list = document.getElementById('savedWheelsList');
+    const wheelNames = Object.keys(savedWheels);
+    
+    if (wheelNames.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:#999;padding:20px">No hay ruletas guardadas</p>';
+        return;
+    }
+    
+    list.innerHTML = '';
+    wheelNames.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'saved-wheel-item';
+        div.innerHTML = `
+            <div>
+                <div class="saved-wheel-name">${name}</div>
+                <div class="saved-wheel-count">${savedWheels[name].length} elementos</div>
+            </div>
+            <div class="saved-wheel-actions">
+                <button class="load-btn" onclick="loadWheel('${name}')">Cargar</button>
+                <button class="delete-saved-btn" onclick="deleteSavedWheel('${name}')">Eliminar</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Abrir/cerrar configuración
+function openConfig() {
+    document.getElementById('configModal').classList.add('show');
+    updateSavedWheelsList();
+}
+
+function closeConfig() {
+    document.getElementById('configModal').classList.remove('show');
+}
+
+function drawWheel(){
+    const centerX = canvas.width/2;
+    const centerY = canvas.height/2;
+    const radius = 180;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    if(items.length === 0){
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#999';
+        ctx.textAlign = 'center';
+        ctx.fillText('Agrega elementos para comenzar', centerX, centerY);
+        return;
     }
 
-    function deleteItem(i){
-        items.splice(i,1);
-        drawWheel();
-        updateItemsList();
-    }
+    const sliceAngle = (2*Math.PI)/items.length;
 
-    function spin() {
+    items.forEach((item,index)=>{
+        const startAngle = index * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX,centerY);
+        ctx.arc(centerX,centerY,radius,startAngle,endAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(centerX,centerY);
+        ctx.rotate(startAngle + sliceAngle/2);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px Arial';
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 3;
+        ctx.fillText(item, radius * 0.65, 5);
+        ctx.restore();
+    });
+}
+
+function updateItemsList(){
+    const list = document.getElementById('itemsList');
+    list.innerHTML = '';
+    items.forEach((item,index)=>{
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+            <div style="display:flex;align-items:center">
+                <div class="item-color" style="background:${colors[index % colors.length]}"></div>
+                <div class="item-text">${item}</div>
+            </div>
+            <button class="delete-btn" onclick="deleteItem(${index})">Eliminar</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function addItem(){
+    const input = document.getElementById('itemInput');
+    const v = input.value.trim();
+    if(!v) return;
+    items.push(v);
+    input.value = '';
+    drawWheel();
+    updateItemsList();
+}
+
+function deleteItem(i){
+    items.splice(i,1);
+    drawWheel();
+    updateItemsList();
+}
+
+function spin() {
     if (isSpinning || items.length === 0) return;
 
     isSpinning = true;
     const spinBtn = document.getElementById('spinBtn');
     spinBtn.disabled = true;
 
-    // Vueltas + ángulo extra para que sea realmente aleatorio
-    const spins = 6 + Math.random()*6;
+    const spinDuration = 25000;
+    canvas.style.transition = `transform ${spinDuration}ms cubic-bezier(.17,.67,.12,.99)`;
+
+    const spins = 20 + Math.random()*10;
     const extra = Math.random() * 360;
     const degreesToRotate = spins * 360 + extra;
 
     const totalRotation = currentRotation + degreesToRotate;
 
-    // Aplicar giro visual
     canvas.style.transform = `rotate(${totalRotation}deg)`;
 
-    const transitionDurationMs = 4000;
-
     setTimeout(() => {
-        // Normalizar ángulo final entre 0-360
         const normalized = ((totalRotation % 360) + 360) % 360;
-
         const sliceDeg = 360 / items.length;
 
-        /**
-         * La flecha está arriba (posición 270°)
-         * Para saber qué segmento señala:
-         * ganador = (270° - ángulo_final_rota_ruleta)
-         */
         let ang = 270 - normalized;
         if (ang < 0) ang += 360;
 
-        const winnerIndex = Math.floor(ang / sliceDeg);
+        let winnerIndex = Math.floor(ang / sliceDeg);
+        let winner = items[winnerIndex];
 
-        const winner = items[winnerIndex];
+        if (items.length > 1 && winner === lastWinner) {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * items.length);
+            } while (items[newIndex] === lastWinner);
+            winnerIndex = newIndex;
+            winner = items[newIndex];
+        }
+
+        lastWinner = winner;
 
         showWinner(winner);
 
@@ -452,21 +775,22 @@
         isSpinning = false;
         spinBtn.disabled = false;
 
-    }, transitionDurationMs + 50);
+    }, spinDuration + 100);
 }
 
-    function showWinner(name){
-        document.getElementById('winnerText').textContent = name;
-        document.getElementById('winnerModal').classList.add('show');
-    }
+function showWinner(name){
+    document.getElementById('winnerText').textContent = name;
+    document.getElementById('winnerModal').classList.add('show');
+}
 
-    function closeModal(){
-        document.getElementById('winnerModal').classList.remove('show');
-    }
+function closeModal(){
+    document.getElementById('winnerModal').classList.remove('show');
+}
 
-    drawWheel();
-    updateItemsList();
+// Inicializar
+loadData();
+drawWheel();
+updateItemsList();
     </script>
-    
 </body>
 </html>
